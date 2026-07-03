@@ -3,32 +3,70 @@
 (function () {
   let settings = {
     canvas: true,
-    font: true,
+    font: false,
     audioContext: true,
     webgl: true,
-    webgpu: true,
-    clientRects: true
+    webgpu: false,
+    clientRects: false
   };
 
+  let seed = Math.floor(Math.random() * 4294967296);
+  let seedReady = false;
+  let settingsReady = false;
+
+  // Try to read from data attributes first (synchronous)
   try {
-    const stored = sessionStorage.getItem('fpDefenderSettings');
-    if (stored) {
-      settings = JSON.parse(stored);
+    const seedAttr = document.documentElement.getAttribute('data-fp-seed');
+    if (seedAttr) {
+      seed = parseInt(seedAttr, 10);
+      seedReady = true;
+    }
+    
+    const settingsAttr = document.documentElement.getAttribute('data-fp-settings');
+    if (settingsAttr) {
+      settings = JSON.parse(settingsAttr);
+      settingsReady = true;
     }
   } catch (e) {
-    // Use defaults
+    // Attributes not set yet
   }
 
-  // Per-origin seed (falls back to a one-off random seed if not provided,
-  // e.g. if isolated-world injection hasn't run yet for some reason).
-  let seed = Math.floor(Math.random() * 4294967296);
-  try {
-    const storedSeed = sessionStorage.getItem('fpDefenderSeed');
-    if (storedSeed !== null) {
-      seed = parseInt(storedSeed, 10);
+  // If not ready, listen for events from isolated world
+  if (!seedReady) {
+    document.documentElement.addEventListener('fpDefenderSeedReady', function(e) {
+      seed = e.detail.seed;
+      seedReady = true;
+    }, { once: true });
+  }
+
+  if (!settingsReady) {
+    document.documentElement.addEventListener('fpDefenderSettingsReady', function(e) {
+      settings = e.detail.settings;
+      settingsReady = true;
+    }, { once: true });
+  }
+
+  // Fallback: try sessionStorage
+  if (!seedReady) {
+    try {
+      const storedSeed = sessionStorage.getItem('fpDefenderSeed');
+      if (storedSeed !== null) {
+        seed = parseInt(storedSeed, 10);
+      }
+    } catch (e) {
+      // Use the random seed
     }
-  } catch (e) {
-    // Use the one-off seed
+  }
+
+  if (!settingsReady) {
+    try {
+      const stored = sessionStorage.getItem('fpDefenderSettings');
+      if (stored) {
+        settings = JSON.parse(stored);
+      }
+    } catch (e) {
+      // Use defaults
+    }
   }
 
   // ============================================================================
