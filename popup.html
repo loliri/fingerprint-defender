@@ -1,0 +1,501 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 380px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background: #ffffff;
+        color: #1a1a1a;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #1a1a1a;
+          color: #e0e0e0;
+        }
+      }
+
+      .header {
+        background: #595959;
+        color: white;
+        padding: 16px 20px;
+        border-bottom: 3px solid #d10019;
+      }
+
+      .header h1 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .header p {
+        font-size: 12px;
+        opacity: 0.85;
+      }
+
+      .notice {
+        padding: 12px 20px;
+        background: #f5f5f5;
+        border-left: 3px solid #d10019;
+        font-size: 11px;
+        color: #595959;
+        line-height: 1.5;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .notice {
+          background: #2a2a2a;
+          color: #b0b0b0;
+        }
+      }
+
+      .content {
+        padding: 16px 20px;
+      }
+
+      .toggle-item {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 14px 0;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .toggle-item {
+          border-bottom-color: #333333;
+        }
+      }
+
+      .toggle-item:last-child {
+        border-bottom: none;
+      }
+
+      .toggle-info-wrapper {
+        display: flex;
+        align-items: flex-start;
+        flex: 1;
+        gap: 8px;
+        position: relative;
+      }
+
+      .toggle-info {
+        flex: 1;
+      }
+
+      .toggle-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1a1a1a;
+        margin-bottom: 3px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .toggle-label {
+          color: #e0e0e0;
+        }
+      }
+
+      .toggle-desc {
+        font-size: 11px;
+        color: #666;
+        line-height: 1.4;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .toggle-desc {
+          color: #999;
+        }
+      }
+
+      .info-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        color: #595959;
+        font-size: 11px;
+        font-weight: bold;
+        cursor: help;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .info-icon {
+          background: #404040;
+          color: #b0b0b0;
+        }
+      }
+
+      .info-icon:hover {
+        background: #d10019;
+        color: white;
+      }
+
+      .tooltip {
+        display: none;
+        position: absolute;
+        top: 36px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #2a2a2a;
+        color: #e0e0e0;
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        line-height: 1.5;
+        width: min(280px, calc(100% - 32px));
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        border: 1px solid #404040;
+        box-sizing: border-box;
+        word-break: break-word;
+      }
+
+      @media (prefers-color-scheme: light) {
+        .tooltip {
+          background: #ffffff;
+          color: #1a1a1a;
+          border: 1px solid #d0d0d0;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+      }
+
+      .info-icon:hover .tooltip {
+        display: block;
+      }
+
+      .toggle-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        margin-left: 10px;
+        flex-shrink: 0;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.3s;
+        border-radius: 24px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .slider {
+          background-color: #505050;
+        }
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: #d10019;
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(20px);
+      }
+
+      .footer {
+        padding: 14px 20px;
+        text-align: left;
+        font-size: 11px;
+        color: #666;
+        background: #f9f9f9;
+        border-top: 1px solid #e0e0e0;
+        line-height: 1.6;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .footer {
+          background: #252525;
+          border-top-color: #333333;
+          color: #999;
+        }
+      }
+
+      .footer strong {
+        color: #1a1a1a;
+        font-weight: 600;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .footer strong {
+          color: #e0e0e0;
+        }
+      }
+
+      .footer-section {
+        margin-bottom: 10px;
+      }
+
+      .footer-section:last-child {
+        margin-bottom: 0;
+      }
+
+      .link {
+        color: #d10019;
+        text-decoration: none;
+      }
+
+      .link:hover {
+        text-decoration: underline;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+        padding: 16px 20px;
+        background: #ffffff;
+        border-top: 1px solid #e0e0e0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .action-buttons {
+          background: #1a1a1a;
+          border-top-color: #333333;
+        }
+      }
+
+      .action-btn {
+        flex: 1;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .action-btn.primary {
+        background: #d10019;
+        color: white;
+      }
+
+      .action-btn.primary:hover {
+        background: #a50014;
+      }
+
+      .action-btn.secondary {
+        background: #e0e0e0;
+        color: #595959;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .action-btn.secondary {
+          background: #404040;
+          color: #b0b0b0;
+        }
+      }
+
+      .action-btn.secondary:hover {
+        background: #d0d0d0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .action-btn.secondary:hover {
+          background: #505050;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="header">
+      <h1>指纹防护</h1>
+      <p>全面的浏览器指纹保护</p>
+    </div>
+
+    <div class="notice">
+      <strong>注意：</strong> 某些网站（游戏、3D
+      应用、验证码）可能会受到影响。同一网站的指纹保持稳定，不同网站使用不同指纹。
+    </div>
+
+    <div class="content">
+      <div class="toggle-item">
+        <div class="toggle-info-wrapper">
+          <div class="toggle-info">
+            <div class="toggle-label">
+              Canvas
+              <div class="info-icon">
+                i
+                <div class="tooltip">
+                  向 Canvas 渲染添加基于域名的确定性噪声。同一网站的 Canvas
+                  指纹保持一致，防止被识别为反指纹工具，同时实现跨站隔离。
+                </div>
+              </div>
+            </div>
+            <div class="toggle-desc">防止 Canvas 指纹追踪</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="canvas" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-item">
+        <div class="toggle-info-wrapper">
+          <div class="toggle-info">
+            <div class="toggle-label">
+              字体
+              <div class="info-icon">
+                i
+                <div class="tooltip">
+                  向字体测量值添加确定性噪声。防止通过字体渲染指标进行追踪，同时保持页面布局稳定。
+                </div>
+              </div>
+            </div>
+            <div class="toggle-desc">防止字体指纹追踪</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="font" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-item">
+        <div class="toggle-info-wrapper">
+          <div class="toggle-info">
+            <div class="toggle-label">
+              音频上下文
+              <div class="info-icon">
+                i
+                <div class="tooltip">
+                  向 Web Audio API
+                  输出添加确定性噪声。防止音频指纹识别，同时保持网页音频功能正常。
+                </div>
+              </div>
+            </div>
+            <div class="toggle-desc">防止音频指纹追踪</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="audioContext" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-item">
+        <div class="toggle-info-wrapper">
+          <div class="toggle-info">
+            <div class="toggle-label">
+              WebGL
+              <div class="info-icon">
+                i
+                <div class="tooltip">
+                  伪装 WebGL 参数并添加确定性噪声。防止基于 WebGL
+                  的显卡指纹识别，同时保持 3D 渲染功能正常。
+                </div>
+              </div>
+            </div>
+            <div class="toggle-desc">防止 WebGL 指纹追踪</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="webgl" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-item">
+        <div class="toggle-info-wrapper">
+          <div class="toggle-info">
+            <div class="toggle-label">
+              WebGPU
+              <div class="info-icon">
+                i
+                <div class="tooltip">
+                  向 WebGPU 设备信息添加确定性噪声。防止基于 WebGPU
+                  的硬件指纹识别，同时保持 GPU 加速应用兼容性。
+                </div>
+              </div>
+            </div>
+            <div class="toggle-desc">防止 WebGPU 指纹追踪</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="webgpu" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-item">
+        <div class="toggle-info-wrapper">
+          <div class="toggle-info">
+            <div class="toggle-label">
+              客户端矩形
+              <div class="info-icon">
+                i
+                <div class="tooltip">
+                  向 DOM
+                  元素测量添加确定性噪声。防止通过元素尺寸进行指纹识别，同时保持页面布局正常。
+                </div>
+              </div>
+            </div>
+            <div class="toggle-desc">防止 DOM 矩形指纹追踪</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="clientRects" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn secondary" id="resetBtn">重置默认</button>
+      <button class="action-btn secondary" id="refreshSeedBtn">刷新指纹</button>
+      <button class="action-btn primary" id="testBtn">测试防护</button>
+    </div>
+
+    <div class="footer">
+      <div class="footer-section">
+        <strong>工作原理：</strong>
+        基于域名使用确定性噪声，同一网站指纹稳定，跨站隔离追踪。
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
