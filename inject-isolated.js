@@ -35,7 +35,7 @@
     } catch (e) {
       // sessionStorage might not be available
     }
-    
+
     // Dispatch custom event to notify MAIN world
     document.documentElement.setAttribute('data-fp-seed', seed.toString());
     document.documentElement.dispatchEvent(new CustomEvent('fpDefenderSeedReady', {
@@ -58,7 +58,7 @@ chrome.storage.local.get({
   } catch (e) {
     // sessionStorage might not be available
   }
-  
+
   // Dispatch settings ready event
   document.documentElement.setAttribute('data-fp-settings', JSON.stringify(settings));
   document.documentElement.dispatchEvent(new CustomEvent('fpDefenderSettingsReady', {
@@ -81,7 +81,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
       } catch (e) {
         // sessionStorage might not be available
       }
-      
+
       // Update data attribute for future access
       document.documentElement.setAttribute('data-fp-settings', JSON.stringify(settings));
     });

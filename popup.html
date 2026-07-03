@@ -59,6 +59,59 @@
         }
       }
 
+      .fingerprint-info {
+        padding: 12px 20px;
+        background: #f9f9f9;
+        border-bottom: 1px solid #e0e0e0;
+        font-size: 11px;
+        line-height: 1.6;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .fingerprint-info {
+          background: #252525;
+          border-bottom-color: #333333;
+        }
+      }
+
+      .fingerprint-info .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+
+      .fingerprint-info .info-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .fingerprint-info .info-label {
+        font-weight: 600;
+        color: #595959;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .fingerprint-info .info-label {
+          color: #b0b0b0;
+        }
+      }
+
+      .fingerprint-info .info-value {
+        color: #1a1a1a;
+        font-family: "Courier New", monospace;
+        font-size: 10px;
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .fingerprint-info .info-value {
+          color: #e0e0e0;
+        }
+      }
+
       .content {
         padding: 16px 20px;
       }
@@ -348,6 +401,17 @@
     <div class="notice">
       <strong>注意：</strong> 某些网站（游戏、3D
       应用、验证码）可能会受到影响。同一网站的指纹保持稳定，不同网站使用不同指纹。
+    </div>
+
+    <div class="fingerprint-info">
+      <div class="info-row">
+        <span class="info-label">WebGL 渲染器:</span>
+        <span class="info-value" id="webglRenderer">加载中...</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">指纹哈希:</span>
+        <span class="info-value" id="fingerprintHash">加载中...</span>
+      </div>
     </div>
 
     <div class="content">

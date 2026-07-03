@@ -21,7 +21,7 @@
       seed = parseInt(seedAttr, 10);
       seedReady = true;
     }
-    
+
     const settingsAttr = document.documentElement.getAttribute('data-fp-settings');
     if (settingsAttr) {
       settings = JSON.parse(settingsAttr);
@@ -33,14 +33,14 @@
 
   // If not ready, listen for events from isolated world
   if (!seedReady) {
-    document.documentElement.addEventListener('fpDefenderSeedReady', function(e) {
+    document.documentElement.addEventListener('fpDefenderSeedReady', function (e) {
       seed = e.detail.seed;
       seedReady = true;
     }, { once: true });
   }
 
   if (!settingsReady) {
-    document.documentElement.addEventListener('fpDefenderSettingsReady', function(e) {
+    document.documentElement.addEventListener('fpDefenderSettingsReady', function (e) {
       settings = e.detail.settings;
       settingsReady = true;
     }, { once: true });
@@ -278,6 +278,157 @@
   // WEBGL FINGERPRINT DEFENDER (WITH ERROR FIX)
   // ============================================================================
   if (settings.webgl) {
+    // Detect platform from User-Agent
+    const ua = navigator.userAgent;
+    const isWindows = /Windows/.test(ua);
+    const isMac = /Macintosh|Mac OS X/.test(ua);
+    const isLinux = /Linux/.test(ua) && !/Android/.test(ua);
+    const isAndroid = /Android/.test(ua);
+    const isIOS = /iPhone|iPad|iPod/.test(ua);
+    const isAppleSilicon = isMac && /Apple/.test(ua); // 粗略检测
+
+    // Define platform-specific GPU lists
+    const gpuByPlatform = {
+      windows: [
+        "Intel(R) HD Graphics",
+        "Intel(R) HD Graphics 4000",
+        "Intel(R) HD Graphics 5500",
+        "Intel(R) HD Graphics 620",
+        "Intel(R) HD Graphics 630",
+        "Intel(R) UHD Graphics",
+        "Intel(R) UHD Graphics 620",
+        "Intel(R) UHD Graphics 630",
+        "Intel(R) Iris Plus Graphics",
+        "NVIDIA RTX PRO 6000 Blackwell",
+        "NVIDIA GeForce GTX 1050",
+        "NVIDIA GeForce GTX 1060",
+        "NVIDIA GeForce GTX 1650",
+        "NVIDIA GeForce GTX 1660",
+        "NVIDIA GeForce RTX 2060",
+        "NVIDIA GeForce RTX 3060",
+        "NVIDIA GeForce RTX 3070",
+        "NVIDIA GeForce RTX 3080",
+        "NVIDIA GeForce RTX 3090",
+        "NVIDIA GeForce RTX 4060",
+        "NVIDIA GeForce RTX 4070",
+        "NVIDIA GeForce RTX 4080",
+        "NVIDIA GeForce RTX 4090",
+        "NVIDIA GeForce RTX 5060",
+        "NVIDIA GeForce RTX 5070",
+        "NVIDIA GeForce RTX 5080",
+        "NVIDIA GeForce RTX 5090",
+        "AMD Radeon RX 560",
+        "AMD Radeon RX 580",
+        "AMD Radeon RX 5600 XT",
+        "AMD Radeon RX 6600",
+        "AMD Radeon RX 6700 XT",
+        "AMD Radeon Graphics"
+      ],
+      mac: [
+        "Intel(R) HD Graphics 5000",
+        "Intel(R) HD Graphics 6000",
+        "Intel(R) Iris Graphics 6100",
+        "Intel(R) Iris Plus Graphics 640",
+        "Intel(R) Iris Plus Graphics 655",
+        "Intel(R) UHD Graphics 630",
+        "AMD Radeon Pro 555",
+        "AMD Radeon Pro 560",
+        "AMD Radeon Pro 5300",
+        "AMD Radeon Pro 5500 XT",
+        "AMD Radeon Pro 5700 XT"
+      ],
+      macSilicon: [
+        "Apple M1",
+        "Apple M1 Pro",
+        "Apple M1 Max",
+        "Apple M1 Ultra",
+        "Apple M2",
+        "Apple M2 Pro",
+        "Apple M2 Max",
+        "Apple M2 Ultra",
+        "Apple M3",
+        "Apple M3 Pro",
+        "Apple M3 Max",
+        "Apple M3 Ultra",
+        "Apple M4",
+        "Apple M4 Pro",
+        "Apple M4 Max",
+        "Apple M4 Ultra",
+        "Apple M5",
+        "Apple M5 Pro",
+        "Apple M5 Max",
+        "Apple M5 Ultra",
+        "Apple M6",
+        "Apple M6 Pro",
+        "Apple M6 Max",
+        "Apple M6 Ultra"
+      ],
+      linux: [
+        "Intel(R) HD Graphics",
+        "Intel(R) HD Graphics 4000",
+        "Intel(R) HD Graphics 620",
+        "Intel(R) UHD Graphics 620",
+        "Mesa DRI Intel(R) HD Graphics",
+        "Mesa DRI Intel(R) UHD Graphics",
+        "NVIDIA RTX PRO 6000 Blackwell",
+        "NVIDIA GeForce GTX 1050",
+        "NVIDIA GeForce GTX 1060",
+        "NVIDIA GeForce GTX 1650",
+        "NVIDIA GeForce GTX 1660",
+        "NVIDIA GeForce RTX 2060",
+        "NVIDIA GeForce RTX 3060",
+        "NVIDIA GeForce RTX 3070",
+        "NVIDIA GeForce RTX 3080",
+        "NVIDIA GeForce RTX 3090",
+        "NVIDIA GeForce RTX 4060",
+        "NVIDIA GeForce RTX 4070",
+        "NVIDIA GeForce RTX 4080",
+        "NVIDIA GeForce RTX 4090",
+        "NVIDIA GeForce RTX 5060",
+        "NVIDIA GeForce RTX 5070",
+        "NVIDIA GeForce RTX 5080",
+        "NVIDIA GeForce RTX 5090",
+        "AMD Radeon RX 580",
+        "AMD Radeon RX 5600 XT",
+        "AMD Radeon RX 6600"
+      ],
+      android: [
+        "Adreno (TM) 530",
+        "Adreno (TM) 630",
+        "Adreno (TM) 640",
+        "Mali-G72",
+        "Mali-G76",
+        "Mali-G77",
+        "Mali-G78",
+        "PowerVR Rogue GE8320"
+      ],
+      ios: [
+        "Apple A12 GPU",
+        "Apple A13 GPU",
+        "Apple A14 GPU",
+        "Apple A15 GPU",
+        "Apple A16 GPU"
+      ]
+    };
+
+    // Select appropriate GPU list
+    let gpuList;
+    if (isWindows) {
+      gpuList = gpuByPlatform.windows;
+    } else if (isMac) {
+      // Check if it might be Apple Silicon (very rough heuristic)
+      gpuList = isAppleSilicon ? gpuByPlatform.macSilicon : gpuByPlatform.mac;
+    } else if (isLinux) {
+      gpuList = gpuByPlatform.linux;
+    } else if (isAndroid) {
+      gpuList = gpuByPlatform.android;
+    } else if (isIOS) {
+      gpuList = gpuByPlatform.ios;
+    } else {
+      // Fallback to generic list
+      gpuList = ["Graphics", "HD Graphics"];
+    }
+
     const config = {
       "random": {
         "value": function (label) {
@@ -367,9 +518,33 @@
                   else if (args[0] === 36349) return config.random.number([10, 11, 12, 13], 'webgl-param-36349');
                   else if (args[0] === 33902) return config.random.float([0, 10, 11, 12, 13], 'webgl-param-33902');
                   else if (args[0] === 33901) return config.random.float([0, 10, 11, 12, 13], 'webgl-param-33901');
-                  else if (args[0] === 37446) return config.random.item(["Graphics", "HD Graphics", "Intel(R) HD Graphics"], 'webgl-param-37446');
-                  else if (args[0] === 7938) return config.random.item(["WebGL 1.0", "WebGL 1.0 (OpenGL)", "WebGL 1.0 (OpenGL Chromium)"], 'webgl-param-7938');
-                  else if (args[0] === 35724) return config.random.item(["WebGL", "WebGL GLSL", "WebGL GLSL ES", "WebGL GLSL ES (OpenGL Chromium)"], 'webgl-param-35724');
+                  else if (args[0] === 37446) return config.random.item(gpuList, 'webgl-param-37446');
+                  else if (args[0] === 7938) return config.random.item([
+                    "WebGL 1.0",
+                    "WebGL 1.0 (OpenGL)",
+                    "WebGL 1.0 (OpenGL Chromium)",
+                    "WebGL 1.0 (OpenGL ES 2.0)",
+                    "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+                    "WebGL 1.0 (OpenGL ES 3.0)",
+                    "WebGL 2.0",
+                    "WebGL 2.0 (OpenGL)",
+                    "WebGL 2.0 (OpenGL Chromium)",
+                    "WebGL 2.0 (OpenGL ES 3.0)",
+                    "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+                  ], 'webgl-param-7938');
+                  else if (args[0] === 35724) return config.random.item([
+                    "WebGL",
+                    "WebGL GLSL",
+                    "WebGL GLSL ES",
+                    "WebGL GLSL ES (OpenGL Chromium)",
+                    "WebGL GLSL ES 1.0",
+                    "WebGL GLSL ES 1.0 (OpenGL ES GLSL ES 1.0 Chromium)",
+                    "WebGL GLSL ES 3.0",
+                    "WebGL GLSL ES 3.0 (OpenGL ES GLSL ES 3.0 Chromium)",
+                    "WebGL GLSL ES 3.00",
+                    "OpenGL ES GLSL ES 1.00",
+                    "OpenGL ES GLSL ES 3.00"
+                  ], 'webgl-param-35724');
                 } catch (e) {
                   // If any error, fall through to original
                 }
