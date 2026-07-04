@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "指纹防护",
+    "description": "扩展名称"
+  },
+  "extDescription": {
+    "message": "全面的浏览器指纹防护，支持 Canvas、字体、音频上下文、WebGPU、客户端矩形和 WebGL 的可切换防护",
+    "description": "扩展描述"
+  },
+  "contextMenuRefreshFingerprint": {
+    "message": "刷新指纹（需手动刷新页面）",
+    "description": "右键菜单：刷新指纹选项"
+  }
+}

@@ -13,7 +13,7 @@ chrome.runtime.onInstalled.addListener(() => {
   // Create context menu for extension icon
   chrome.contextMenus.create({
     id: 'refreshFingerprint',
-    title: '刷新指纹（需手动刷新页面）',
+    title: chrome.i18n.getMessage('contextMenuRefreshFingerprint'),
     contexts: ['action']
   });
 });

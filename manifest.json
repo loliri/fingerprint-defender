@@ -1,8 +1,9 @@
 {
   "version": "2.0.0",
   "manifest_version": 3,
-  "name": "Fingerprint Defender",
-  "description": "全面的指纹保护功能，支持针对 Canvas、字体、音频上下文、WebGL、WebGPU、客户端矩形开启或关闭相应的防御措施。",
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "permissions": ["storage", "tabs", "scripting", "contextMenus"],
   "host_permissions": ["<all_urls>"],
   "background": {

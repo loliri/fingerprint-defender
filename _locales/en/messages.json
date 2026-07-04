@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "Fingerprint Defender",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Comprehensive fingerprint protection with toggleable defenses for Canvas, Font, AudioContext, WebGPU, ClientRects, and WebGL",
+    "description": "Extension description"
+  },
+  "contextMenuRefreshFingerprint": {
+    "message": "Refresh Fingerprint (Manual page reload required)",
+    "description": "Context menu: Refresh fingerprint option"
+  }
+}
